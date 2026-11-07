@@ -262,11 +262,16 @@
 
 
 
+/*
+  ==============================================================
+                  LOAD DATA TO BRONZE LAYER
+  ==============================================================
+    - Script Purpose
+        loading data from csv files to the bronze layer tables after TRUNCATING the tables.
+        used a postgres bloc statment approch (DO BEGIN END), i used a loop (DIY)
+*/
 
 
-
-
--- create an array that holds tables names and csv's files paths (to loop over)
 
 SET SEARCH_PATH = 'bronze', PUBLIC;
 
@@ -310,23 +315,24 @@ DECLARE
 
 BEGIN 
 
+    RAISE NOTICE '===========================================================';
     RAISE NOTICE 'LOADING DATA INTO BRONZE TABLES HAS STARTED';
+    RAISE NOTICE '===========================================================';
+
     
-    -- FOR r IN SELECT * FROM UNNEST(tables_names) LOOP 
     FOR i IN 1..ARRAY_LENGTH(tables_names, 1) LOOP  
 
         table_name := tables_names[i];
         path_name := files_path[i];
 
-
         BEGIN
 
-            RAISE NOTICE 'Loading %...', table_name;        
             
             exec_started_at := CLOCK_TIMESTAMP();
             started_at := CLOCK_TIMESTAMP();
 
             RAISE NOTICE '===========================================================';
+            RAISE NOTICE 'Loading %...', table_name;        
 
             RAISE NOTICE 'TRUNCATING TABLE %', table_name;
             EXECUTE FORMAT('TRUNCATE TABLE %I', table_name);
